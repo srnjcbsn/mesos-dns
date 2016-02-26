@@ -194,6 +194,66 @@
             "role": "*",
             "tasks": [
                 {
+                    "container": {
+                        "docker": {
+                            "force_pull_image": false,
+                            "image": "ubuntu:latest",
+                            "network": "BRIDGE",
+                            "port_mappings": [
+                                {
+                                    "container_port": 80,
+                                    "host_port": 28027,
+                                    "protocol": "tcp"
+                                }
+                            ],
+                            "privileged": false
+                        },
+                        "type": "DOCKER"
+                    },
+                    "executor_id": "",
+                    "framework_id": "20140703-014514-3041283216-5050-5348-0000",
+                    "id": "trident.6579d29b-a5be-11e5-b87a-0aaf95d09f0f",
+                    "labels": [
+                        {
+                            "key": "vip_PORT0",
+                            "value": "tcp://1.2.3.4:5000"
+                        }
+                    ],
+                    "name": "trident",
+                    "resources": {
+                        "cpus": 0.1,
+                        "disk": 0,
+                        "mem": 16.0,
+                        "ports": "[28027-28027]"
+                    },
+                    "slave_id": "20140803-125133-3041283216-5050-2410-0",
+                    "state": "TASK_RUNNING",
+                    "statuses": [
+                        {
+                            "container_status": {
+                                "network_infos": [
+                                    {
+                                        "ip_address": "172.17.0.5",
+                                        "ip_addresses": [
+                                            {
+                                                "ip_address": "172.17.0.5"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "labels": [
+                                {
+                                    "key": "Docker.NetworkSettings.IPAddress",
+                                    "value": "172.17.0.5"
+                                }
+                            ],
+                            "state": "TASK_RUNNING",
+                            "timestamp": 1450467287.78237
+                        }
+                    ]
+                },
+                {
                     "executor_id": "",
                     "framework_id": "20140703-014514-3041283216-5050-5348-0000",
                     "id": "poseidon.bc4e3796-2d7a-11e4-b8df-d43d7edb01cd",

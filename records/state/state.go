@@ -83,8 +83,31 @@ type Task struct {
 	Statuses      []Status `json:"statuses"`
 	Resources     `json:"resources"`
 	DiscoveryInfo DiscoveryInfo `json:"discovery"`
+	Container     Container     `json:"container"`
 
 	SlaveIP string `json:"-"`
+}
+
+// Container holds a container as defined in the /state.json Mesos HTTP endpoint.
+type Container struct {
+	Type   string `json:"type"`
+	Docker Docker `json:"docker"`
+}
+
+// Docker holds a docker as defined in the /state.json Mesos HTTP endpoint.
+type Docker struct {
+	Image          string        `json:"image"`
+	Network        string        `json:"network"`
+	PortMappings   []PortMapping `json:"port_mappings"`
+	Privileged     bool          `json:"privileged"`
+	ForcePullImage bool          `json:"force_pull_image"`
+}
+
+// PortMapping holds a portMapping as defined in the /state.json Mesos HTTP endpoint.
+type PortMapping struct {
+	ContainerPort int    `json:"container_port"`
+	HostPort      int    `json:"host_port"`
+	Protocol      string `json:"protocol"`
 }
 
 // HasDiscoveryInfo return whether the DiscoveryInfo was provided in the state.json
@@ -133,6 +156,9 @@ func hostIPs(t *Task) []string { return []string{t.SlaveIP} }
 // networkInfoIPs returns IP addresses from a given Task's
 // []Status.ContainerStatus.[]NetworkInfos.[]IPAddresses.IPAddress
 func networkInfoIPs(t *Task) []string {
+	if t.Container.Docker.Network == "BRIDGE" {
+		return []string{t.SlaveIP}
+	}
 	return statusIPs(t.Statuses, func(s *Status) []string {
 		ips := make([]string, len(s.ContainerStatus.NetworkInfos))
 		for _, netinfo := range s.ContainerStatus.NetworkInfos {

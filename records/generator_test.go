@@ -186,16 +186,18 @@ func testRecordGenerator(t *testing.T, spec labels.Func, ipSources []string) Rec
 
 // ensure we are parsing what we think we are
 func TestInsertState(t *testing.T) {
-	rg := testRecordGenerator(t, labels.RFC952, []string{"docker", "mesos", "host"})
+	rg := testRecordGenerator(t, labels.RFC952, []string{"netinfo", "docker", "mesos", "host"})
 	rgDocker := testRecordGenerator(t, labels.RFC952, []string{"docker", "host"})
 	rgMesos := testRecordGenerator(t, labels.RFC952, []string{"mesos", "host"})
 	rgSlave := testRecordGenerator(t, labels.RFC952, []string{"host"})
 
+	// t.Logf("%# v\n", pretty.Formatter(rg))
 	for i, tt := range []struct {
 		rrs  rrs
 		name string
 		want []string
 	}{
+		{rg.As, "trident.marathon.mesos.", []string{"1.2.3.11"}},
 		{rg.As, "big-dog.marathon.mesos.", []string{"10.3.0.1"}},
 		{rg.As, "liquor-store.marathon.mesos.", []string{"10.3.0.1", "10.3.0.2"}},
 		{rg.As, "liquor-store.marathon.slave.mesos.", []string{"1.2.3.11", "1.2.3.12"}},
