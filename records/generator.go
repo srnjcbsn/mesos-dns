@@ -199,7 +199,7 @@ func (rg *RecordGenerator) findMaster(masters ...string) (state.State, error) {
 
 	// Check if ZK leader is correct
 	if leader != "" {
-		logging.VeryVerbose.Println("The leader is: ", leader)
+		logging.VeryVerbose.Println("Zookeeper says, the leader is: ", leader)
 		ip, port, err := getProto(leader)
 		if err != nil {
 			logging.Error.Println(err)
@@ -284,12 +284,21 @@ func (rg *RecordGenerator) loadWrap(ip, port string) (state.State, error) {
 	if err != nil {
 		return state.State{}, err
 	}
-	if rip := leaderIP(sj.Leader); rip != ip {
-		logging.VeryVerbose.Println("Warning: master changed to " + ip)
-		sj, err = rg.loadFromMaster(rip, port)
-		return sj, err
+	if sj.Leader != "" {
+		// FIXME(prozlach): Still, we are assuming that sj.Leader is a correct
+		// host string...
+		rip := leaderIP(sj.Leader)
+		if rip != ip {
+			logging.VeryVerbose.Println("Warning: master changed to " + ip)
+			sj, err = rg.loadFromMaster(rip, port)
+			return sj, err
+		}
+		return sj, nil
 	}
-	return sj, nil
+	msg := "Fetched state.json does not contain leader information"
+	logging.Error.Println(msg)
+	err = errors.New(msg)
+	return sj, err
 }
 
 // hashes a given name using a truncated sha1 hash
