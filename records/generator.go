@@ -203,36 +203,34 @@ func (rg *RecordGenerator) findMaster(masters ...string) (state.State, error) {
 		ip, port, err := getProto(leader)
 		if err != nil {
 			logging.Error.Println(err)
+		} else {
+			if sj, err = rg.loadWrap(ip, port); err == nil {
+				return sj, nil
+			}
+			logging.Error.Println("Failed to fetch state.json from leader")
+			if len(masters) == 0 {
+				return sj, errors.New("No more masters to try")
+			}
+			logging.Error.Println("Falling back to remaining masters: ", masters)
 		}
-
-		if sj, err = rg.loadWrap(ip, port); err == nil && sj.Leader != "" {
-			return sj, nil
-		}
-		logging.Verbose.Println("Warning: Zookeeper is wrong about leader, or request failed")
-		if len(masters) == 0 {
-			return sj, errors.New("no master")
-		}
-		logging.Verbose.Println("Warning: falling back to Masters config field: ", masters)
 	}
 
 	// try each listed mesos master before dying
-	for i, master := range masters {
+	for _, master := range masters {
 		ip, port, err := getProto(master)
 		if err != nil {
 			logging.Error.Println(err)
+			continue
 		}
 
-		if sj, err = rg.loadWrap(ip, port); err == nil && sj.Leader == "" {
-			logging.VeryVerbose.Println("Warning: not a leader - trying next one")
-			if len(masters)-1 == i {
-				return sj, errors.New("no master")
-			}
-		} else {
-			return sj, nil
+		if sj, err = rg.loadWrap(ip, port); err != nil {
+			logging.Error.Println("Failed to fetch state.json - trying next one")
+			continue
 		}
+		return sj, nil
 	}
 
-	return sj, errors.New("no master")
+	return sj, errors.New("no more masters eligible for state.json query")
 }
 
 // Loads state.json from mesos master
