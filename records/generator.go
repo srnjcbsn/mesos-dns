@@ -121,7 +121,7 @@ func (rg *RecordGenerator) ParseState(c Config, masters ...string) error {
 	// find master -- return if error
 	sj, err := rg.findMaster(masters...)
 	if err != nil {
-		logging.Error.Println("no master")
+		logging.Error.Println("Failed to fetch state.json")
 		return err
 	}
 	if sj.Leader == "" {
@@ -150,7 +150,7 @@ func (rg *RecordGenerator) findMaster(masters ...string) (state.State, error) {
 
 	// Check if ZK leader is correct
 	if leader != "" {
-		logging.VeryVerbose.Println("Zookeeper says the leader is: ", leader)
+		logging.VeryVerbose.Println("The leader is: ", leader)
 		ip, port, err := getProto(leader)
 		if err != nil {
 			logging.Error.Println(err)
