@@ -468,13 +468,13 @@ func truncate(m *dns.Msg, udp bool) *dns.Msg {
 func (res *Resolver) configureHTTP() {
 	// webserver + available routes
 	ws := new(restful.WebService)
-	ws.Route(ws.GET("/v1/version").To(res.RestVersion))
-	ws.Route(ws.GET("/v1/config").To(res.RestConfig))
-	ws.Route(ws.GET("/v1/hosts/{host}").To(res.RestHost))
-	ws.Route(ws.GET("/v1/hosts/{host}/ports").To(res.RestPorts))
-	ws.Route(ws.GET("/v1/services/{service}").To(res.RestService))
+	ws.Route(ws.GET("/v1/version").To(res.RestVersion)).Produces(restful.MIME_JSON)
+	ws.Route(ws.GET("/v1/config").To(res.RestConfig)).Produces(restful.MIME_JSON)
+	ws.Route(ws.GET("/v1/hosts/{host}").To(res.RestHost)).Produces(restful.MIME_JSON)
+	ws.Route(ws.GET("/v1/hosts/{host}/ports").To(res.RestPorts)).Produces(restful.MIME_JSON)
+	ws.Route(ws.GET("/v1/services/{service}").To(res.RestService)).Produces(restful.MIME_JSON)
 	if res.config.EnumerationOn {
-		ws.Route(ws.GET("/v1/enumerate").To(res.RestEnumerate))
+		ws.Route(ws.GET("/v1/enumerate").To(res.RestEnumerate)).Produces(restful.MIME_JSON)
 	}
 	restful.Add(ws)
 }
