@@ -47,7 +47,8 @@ func TestRFC952(t *testing.T) {
 		"89fdgsf---gs7-fgs--d7fddg---123":           "fdgsf---gs7-fgs--d7fddg1",
 		"89fdgsf---gs7-fgs--d7fddg-":                "fdgsf---gs7-fgs--d7fddg",
 		"chronos with a space AND MIXED CASE-2.0.1": "chronoswithaspaceandmixe",
-		"chronos with a space AND----------MIXED--": "chronoswithaspaceandmixe",
+		"chronos with a space AND----------MIXED--": "chronoswithaspaceand---m",
+		"hello------------------------f":            "hello------------------f",
 	})
 
 	quickCheckFunc(t, "RFC952", RFC952, cases{
@@ -83,6 +84,7 @@ func TestRFC1123(t *testing.T) {
 		"$$fdgsf---gs7-fgs--d7fddg123456789012345678901234567890123456789-123":   "fdgsf---gs7-fgs--d7fddg1234567890123456789012345678901234567891",
 		"%%fdgsf---gs7-fgs--d7fddg123456789012345678901234567890123456789---123": "fdgsf---gs7-fgs--d7fddg1234567890123456789012345678901234567891",
 		"##fdgsf---gs7-fgs--d7fddg123456789012345678901234567890123456789-":      "fdgsf---gs7-fgs--d7fddg123456789012345678901234567890123456789",
+		"hello---------------------------------------------------------------f":  "hello---------------------------------------------------------f",
 	})
 
 	quickCheckFunc(t, "RFC1123", RFC1123, cases{
