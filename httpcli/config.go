@@ -70,7 +70,7 @@ func (cmo ConfigMapOptions) ToConfigMap() (m ConfigMap) {
 	if len(m) == 0 {
 		m = nil
 	}
-	return m
+	return
 }
 
 // FindOrPanic returns the mapped configuration for the given auth mechanism or else panics
