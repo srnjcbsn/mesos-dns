@@ -38,11 +38,14 @@ func TestValidateResolvers(t *testing.T) {
 		{[]string{"a"}, false},
 		{[]string{"a", "b"}, false},
 		{[]string{"1.2.3.4"}, true},
+		{[]string{"1.2.3.4:53"}, true},
 		{[]string{"1.2.3.4.5"}, false},
 		{[]string{"1.2.3.4", "1.2.3.4"}, false},
 		{[]string{"1.2.3.4", "5.6.7.8"}, true},
+		{[]string{"1.2.3.4", "5.6.7.8:1234"}, true},
 		{[]string{"2001:0db8:3c4d:0015:0000:0000:1a2f:1a2b"}, true},
 		{[]string{"2001:db8:3c4d:15::1a2f:1a2b"}, true},
+		{[]string{"2001:0db8:3c4d:0015:0000:0000:1a2f:1a2b", "[2001:db8:3c4d:15::1a2f:1a2b]:53"}, true},
 		{[]string{"2001:0db8:3c4d:0015:0000:0000:1a2f:1a2b", "2001:db8:3c4d:15::1a2f:1a2b"}, false},
 	} {
 		validate(t, i+1, tc, validateResolvers)

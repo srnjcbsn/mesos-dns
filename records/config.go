@@ -48,7 +48,7 @@ type Config struct {
 	SOARname   string // email of admin esponsible
 	// Mesos master(s): a list of IP:port pairs for one or more Mesos masters
 	Masters []string
-	// DNS server: IP address of the DNS server for forwarded accesses
+	// DNS server: a list of IP addresses or IP:port pairs for DNS servers for forwarded accesses
 	Resolvers []string
 	// IPSources is the prioritized list of task IP sources
 	IPSources []string // e.g. ["host", "docker", "mesos", "rkt"]
