@@ -29,7 +29,12 @@ func NewForwarder(addrs []string, exs map[string]Exchanger) Forwarder {
 			return nil, &ForwardError{Addrs: addrs, Proto: proto}
 		}
 		for _, a := range addrs {
-			if r, _, err = ex.Exchange(m, net.JoinHostPort(a, "53")); err == nil {
+			host, port, splitErr := net.SplitHostPort(a)
+			if splitErr != nil {
+				host = a
+				port = "53"
+			}
+			if r, _, err = ex.Exchange(m, net.JoinHostPort(host, port)); err == nil {
 				break
 			}
 		}

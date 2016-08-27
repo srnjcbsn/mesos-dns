@@ -188,7 +188,7 @@ func (c *Config) initResolvers() {
 			c.Resolvers = GetLocalDNS()
 		}
 		if err := validateResolvers(c.Resolvers); err != nil {
-			logging.Error.Fatalf("Resolvers validation failed: %v", err)
+			logging.Error.Fatal(err)
 		}
 	}
 }
