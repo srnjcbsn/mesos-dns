@@ -46,7 +46,7 @@ func validateHostPorts(hostPorts []string, ipRequired bool, defaultPort string, 
 			return err
 		}
 		if _, found := valid[normalized]; found {
-			return fmt.Errorf("Duplicate host specified: %v", hp)
+			return fmt.Errorf("Duplicate host specified: %v", normalized)
 		}
 		valid[normalized] = struct{}{}
 	}
@@ -67,9 +67,11 @@ func normalizeValidateHostPort(hostPort string, ipRequired bool, defaultPort str
 		if ipRequired {
 			return "", fmt.Errorf("Illegal ip specified: %v", host)
 		}
+	} else {
 		//TODO(jdef) distinguish between intended hostnames and invalid ip addresses
 		host = ip.String()
 	}
+
 	if port != "" {
 		return host + "_" + port, nil
 	}
