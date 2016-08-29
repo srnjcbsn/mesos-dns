@@ -60,7 +60,7 @@ func normalizeValidateHostPort(hostPort string, ipRequired bool, defaultPort str
 			return "", fmt.Errorf("Illegal host:port specified: %v. Error: %v", hostPort, err)
 		}
 		host = hostPort
-		port = ""
+		port = defaultPort
 	}
 	ip := net.ParseIP(host)
 	if ip == nil {
@@ -72,10 +72,7 @@ func normalizeValidateHostPort(hostPort string, ipRequired bool, defaultPort str
 		host = ip.String()
 	}
 
-	if port != "" {
-		return host + "_" + port, nil
-	}
-	return host + "_" + defaultPort, nil
+	return host + "_" + port, nil
 }
 
 // validateIPSources checks validity of ip sources

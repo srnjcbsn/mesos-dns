@@ -132,7 +132,7 @@ func SetConfig(cjson string) Config {
 		logging.Error.Fatalf("service validation failed: %v", err)
 	}
 	if err = validateMasters(c.Masters); err != nil {
-		logging.Error.Fatalf("Masters validation failed: %v", err)
+		logging.Error.Fatal(err)
 	}
 
 	c.initResolvers()

@@ -23,18 +23,22 @@ func (f Forwarder) Forward(m *dns.Msg, proto string) (*dns.Msg, error) {
 // If no addresses or no matching protocol exchanger exist, a *ForwardError will
 // be returned.
 func NewForwarder(addrs []string, exs map[string]Exchanger) Forwarder {
+	normalized := make([]string, len(addrs))
+	for i, a := range addrs {
+		host, port, err := net.SplitHostPort(a)
+		if err != nil {
+			host = a
+			port = "53"
+		}
+		normalized[i] = net.JoinHostPort(host, port)
+	}
 	return func(m *dns.Msg, proto string) (r *dns.Msg, err error) {
 		ex, ok := exs[proto]
 		if !ok || len(addrs) == 0 {
 			return nil, &ForwardError{Addrs: addrs, Proto: proto}
 		}
-		for _, a := range addrs {
-			host, port, splitErr := net.SplitHostPort(a)
-			if splitErr != nil {
-				host = a
-				port = "53"
-			}
-			if r, _, err = ex.Exchange(m, net.JoinHostPort(host, port)); err == nil {
+		for _, a := range normalized {
+			if r, _, err = ex.Exchange(m, a); err == nil {
 				break
 			}
 		}
