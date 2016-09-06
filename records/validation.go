@@ -20,65 +20,70 @@ func validateEnabledServices(c *Config) error {
 // duplicate masters in the list are not allowed.
 // returns nil if the masters list is empty, or else all masters in the list are valid.
 func validateMasters(ms []string) error {
-	if err := validateHostPorts(ms, false, "5050", true); err != nil {
+	if err := validateUniqueStrings(ms, normalizeMaster); err != nil {
 		return fmt.Errorf("Error validating masters: %v", err)
 	}
 	return nil
+}
+
+func normalizeMaster(hostPort string) (string, error) {
+	host, port, err := net.SplitHostPort(hostPort)
+	if err != nil {
+		return "", fmt.Errorf("Illegal host:port specified: %v. Error: %v", hostPort, err)
+	}
+	if ip := net.ParseIP(host); ip != nil {
+		//TODO(jdef) distinguish between intended hostnames and invalid ip addresses
+		host = ip.String()
+	}
+	if !validPortString(port) {
+		return "", fmt.Errorf("Illegal host:port specified: %v", hostPort)
+	}
+	return net.JoinHostPort(host, port), nil
 }
 
 // validateResolvers checks that each resolver in the list is a properly formatted IP or IP:port pair.
 // duplicate resolvers in the list are not allowed.
 // returns nil if the resolver list is empty, or else all resolvers in the list are valid.
 func validateResolvers(rs []string) error {
-	if err := validateHostPorts(rs, true, "53", false); err != nil {
+	if err := validateUniqueStrings(rs, normalizeResolver); err != nil {
 		return fmt.Errorf("Error validating resolvers: %v", err)
 	}
 	return nil
 }
 
-func validateHostPorts(hostPorts []string, ipRequired bool, defaultPort string, portRequired bool) error {
-	if len(hostPorts) == 0 {
-		return nil
+func normalizeResolver(hostPort string) (string, error) {
+	host, port, err := net.SplitHostPort(hostPort)
+	if err != nil {
+		host = hostPort
+		port = "53"
 	}
-	valid := make(map[string]struct{}, len(hostPorts))
-	for _, hp := range hostPorts {
-		normalized, err := normalizeValidateHostPort(hp, ipRequired, defaultPort, portRequired)
+	if ip := net.ParseIP(host); ip != nil {
+		host = ip.String()
+	} else {
+		return "", fmt.Errorf("Illegal ip specified: %v", host)
+	}
+
+	if !validPortString(port) {
+		return "", fmt.Errorf("Illegal host:port specified: %v", hostPort)
+	}
+	return net.JoinHostPort(host, port), nil
+}
+
+// validateUniqueStrings runs a normalize function on each string in a list and
+// retuns an error if any duplicates are found.
+func validateUniqueStrings(strings []string, normalize func(string) (string, error)) error {
+	valid := make(map[string]struct{}, len(strings))
+	for _, str := range strings {
+		normalized, err := normalize(str)
 		if err != nil {
 			return err
 		}
 		if _, found := valid[normalized]; found {
-			return fmt.Errorf("Duplicate host specified: %v", normalized)
+			return fmt.Errorf("Duplicate found: %v", str)
 		}
 		valid[normalized] = struct{}{}
 	}
 	return nil
-}
-
-func normalizeValidateHostPort(hostPort string, ipRequired bool, defaultPort string, portRequired bool) (string, error) {
-	host, portStr, err := net.SplitHostPort(hostPort)
-	if err != nil {
-		if portRequired {
-			return "", fmt.Errorf("Illegal host:port specified: %v. Error: %v", hostPort, err)
-		}
-		host = hostPort
-		portStr = defaultPort
-	}
-	ip := net.ParseIP(host)
-	if ip == nil {
-		if ipRequired {
-			return "", fmt.Errorf("Illegal ip specified: %v", host)
-		}
-	} else {
-		//TODO(jdef) distinguish between intended hostnames and invalid ip addresses
-		host = ip.String()
-	}
-
-	port, err := strconv.Atoi(portStr)
-	if err != nil || port <= 0 {
-		return "", fmt.Errorf("Illegal host:port specified: %v", hostPort)
-	}
-
-	return net.JoinHostPort(host, portStr), nil
 }
 
 // validateIPSources checks validity of ip sources
@@ -98,4 +103,11 @@ func validateIPSources(srcs []string) error {
 	}
 
 	return nil
+}
+
+// validPortString retuns true if the given port string is
+// an integer between 1 and 65535, false otherwise.
+func validPortString(portString string) bool {
+	port, err := strconv.Atoi(portString)
+	return err == nil && port > 0 && port <= 65535
 }
